@@ -8,8 +8,10 @@ import java.util.*;
 
 public class GreedyCycleAlgorithmRunner {
     public static void run() throws IOException {
+
         Instance kroA200 = new Instance("src/main/resources/kroA200.tsp");
-//        Instance kroB200 = new Instance("src/main/resources/kroB200.tsp");
+        Instance kroB200 = new Instance("src/main/resources/kroB200.tsp");
+        Instance kro = kroA200;
         CoordinateList coordinateList = new CoordinateList("src/main/resources/kroA200.tsp");
         int[][] intCoordinateList = coordinateList.intCoordinateList;
         DistanceMatrix distanceMatrix = new DistanceMatrix(intCoordinateList);
@@ -28,20 +30,13 @@ public class GreedyCycleAlgorithmRunner {
             List<List<Integer>> listOfListOfCycle = greedyCycleAlgorithm.runAlgorithm(randomNumber, intCoordinateList, distanceMatrix2);
 //            List<Integer> firstCycle = listOfListOfCycle.get(0);
 //            List<Integer> secondCycle = listOfListOfCycle.get(1);
-            new CandidatesMoves(kroA200, listOfListOfCycle);
+            new CandidatesMoves(kro, listOfListOfCycle);
             fullList.add(listOfListOfCycle);
         }
         PrawdopobieństwoLiczbyWspólnychWierzchołkówDośredniegoRozwiązania(fullList);
 
 //        drugi//
-        HAE hae = new HAE(kroA200);
-        System.out.println("JEJ");
-        List<Integer> firstBestCycle = hae.cycles_X.get(0);
-        List<Integer> secondBestCycle = hae.cycles_X.get(1);
-//
-        for (int i = 0 ; i < fullList.size(); i++){
-
-        }
+        prawdopobieństwoLiczbyWspólnychWierzchołkówDoNajlepszegoRozwiązania(kro, fullList);
 
 
 //
@@ -62,41 +57,53 @@ public class GreedyCycleAlgorithmRunner {
 //
 //        }
 //        System.out.println("Liczba wspolnych krawedzi wynosi" + liczbaWspolnychKrawedzi);
-//
-//
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
     }
 
+    private static void prawdopobieństwoLiczbyWspólnychWierzchołkówDoNajlepszegoRozwiązania(Instance kroA200, List<List<List<Integer>>> fullList) throws IOException {
+        HAE hae = new HAE(kroA200);
+        List<Integer> firstBestCycle = hae.cycles_X.get(0);
+        List<Integer> secondBestCycle = hae.cycles_X.get(1);
+//
+        Map<Integer, List<Integer>> probabilitiDictionary = new HashMap<>();
+        List<Integer> probabilityList = new ArrayList<>(100);
+        List<Integer> probability ;
+        for (int i = 0; i < fullList.size(); i++){
+            probability= new ArrayList<>();
+            List<Integer> firstCycleInFirst = fullList.get(i).get(0);
+            List<Integer> secondCycleInFirst = fullList.get(i).get(1);
+
+            if (numberOfCommonELements(firstCycleInFirst, firstBestCycle) > numberOfCommonELements(firstCycleInFirst, secondBestCycle)){
+                int result = numberOfCommonELements(firstCycleInFirst, firstBestCycle) + numberOfCommonELements(secondCycleInFirst, secondBestCycle);
+                probability.add(result);
+            } else{
+                int result = numberOfCommonELements(firstCycleInFirst, secondBestCycle) + numberOfCommonELements(secondCycleInFirst, firstBestCycle);
+                probability.add(result);
+            }
+            probabilitiDictionary.put(i, probability);
+        }
+
+        Map<Integer, Double> averageDictionary = new HashMap<>();
+        for (Integer key : probabilitiDictionary.keySet()) {
+            List<Integer> valueList = probabilitiDictionary.get(key);
+            double sum = 0;
+            for (Integer value : valueList) {
+                sum += value;
+            }
+            double average = sum / (valueList.size()* 200);
+            averageDictionary.put(key, average);
+        }
+
+
+        solutionToCsv("Prawdopobieństwo liczby wspólnych wierzchołków do najlepszego rozwiązania.csv",  averageDictionary);
+    }
+
     private static void PrawdopobieństwoLiczbyWspólnychWierzchołkówDośredniegoRozwiązania(List<List<List<Integer>>> fullList) throws IOException {
         Map<Integer, List<Integer>> probabilitiDictionary = new HashMap<>();
         List<Integer> probabilityList = new ArrayList<>(100);
-        System.out.println("JEJ");
+//        System.out.println("JEJ");
         List<Integer> probability;
 
         for (int i = 0; i < fullList.size(); i++){

@@ -9,6 +9,6 @@ public class Main {
 
         GreedyCycleAlgorithmRunner.run();
 
-        System.out.println("OSTATNIE");
+        System.out.println("Zrobione");
     }
 }
