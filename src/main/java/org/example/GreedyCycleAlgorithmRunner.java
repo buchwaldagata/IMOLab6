@@ -31,52 +31,19 @@ public class GreedyCycleAlgorithmRunner {
             new CandidatesMoves(kroA200, listOfListOfCycle);
             fullList.add(listOfListOfCycle);
         }
-        Map<Integer, List<Integer>> probabilitiDictionary = new HashMap<>();
-        List<Integer> probabilityList = new ArrayList<>(100);
+        PrawdopobieństwoLiczbyWspólnychWierzchołkówDośredniegoRozwiązania(fullList);
+
+//        drugi//
+        HAE hae = new HAE(kroA200);
         System.out.println("JEJ");
-        List<Integer> probability;
-
-        for (int i = 0 ; i < fullList.size(); i++){
-            probability= new ArrayList<>();
-            for (int j = 0 ; j < fullList.size(); j++){
-                if (i != j){
-                    List<Integer> firstCycleInFirst = fullList.get(i).get(0);
-                    List<Integer> secondCycleInFirst = fullList.get(i).get(1);
-                    List<Integer> firstCycleInSecond = fullList.get(j).get(0);
-                    List<Integer> secondCycleInSecond = fullList.get(j).get(1);
-
-                    if (numberOfCommonELements(firstCycleInFirst, firstCycleInSecond) > numberOfCommonELements(firstCycleInFirst, secondCycleInSecond)){
-                        int result = numberOfCommonELements(firstCycleInFirst, firstCycleInSecond) + numberOfCommonELements(secondCycleInFirst, secondCycleInSecond);
-                        probability.add(result);
-                    } else{
-                        int result = numberOfCommonELements(firstCycleInFirst, secondCycleInSecond) + numberOfCommonELements(secondCycleInFirst, firstCycleInSecond);
-                        probability.add(result);
-                    }
-
-
-                }
-//                else {
-//                    probability.add(1);
-//                }
-            }
-            probabilitiDictionary.put(i, probability);
-        }
-        Map<Integer, Double> averageDictionary = new HashMap<>();
-        for (Integer key : probabilitiDictionary.keySet()) {
-            List<Integer> valueList = probabilitiDictionary.get(key);
-            double sum = 0;
-            for (Integer value : valueList) {
-                sum += value;
-            }
-            double average = sum / (valueList.size()* 200);
-            averageDictionary.put(key, average);
-        }
-
-
-        solutionToCsv("sredniewierzcholki.csv",  averageDictionary);
-        System.out.println("JEJ");
-
+        List<Integer> firstBestCycle = hae.cycles_X.get(0);
+        List<Integer> secondBestCycle = hae.cycles_X.get(1);
 //
+        for (int i = 0 ; i < fullList.size(); i++){
+
+        }
+
+
 //
 //        int  liczbaWspolnychKrawedzi = 0;
 //        for (int i = 0 ; i < fullList.size(); i++){
@@ -124,6 +91,52 @@ public class GreedyCycleAlgorithmRunner {
 
 
 
+    }
+
+    private static void PrawdopobieństwoLiczbyWspólnychWierzchołkówDośredniegoRozwiązania(List<List<List<Integer>>> fullList) throws IOException {
+        Map<Integer, List<Integer>> probabilitiDictionary = new HashMap<>();
+        List<Integer> probabilityList = new ArrayList<>(100);
+        System.out.println("JEJ");
+        List<Integer> probability;
+
+        for (int i = 0; i < fullList.size(); i++){
+            probability= new ArrayList<>();
+            for (int j = 0; j < fullList.size(); j++){
+                if (i != j){
+                    List<Integer> firstCycleInFirst = fullList.get(i).get(0);
+                    List<Integer> secondCycleInFirst = fullList.get(i).get(1);
+                    List<Integer> firstCycleInSecond = fullList.get(j).get(0);
+                    List<Integer> secondCycleInSecond = fullList.get(j).get(1);
+
+                    if (numberOfCommonELements(firstCycleInFirst, firstCycleInSecond) > numberOfCommonELements(firstCycleInFirst, secondCycleInSecond)){
+                        int result = numberOfCommonELements(firstCycleInFirst, firstCycleInSecond) + numberOfCommonELements(secondCycleInFirst, secondCycleInSecond);
+                        probability.add(result);
+                    } else{
+                        int result = numberOfCommonELements(firstCycleInFirst, secondCycleInSecond) + numberOfCommonELements(secondCycleInFirst, firstCycleInSecond);
+                        probability.add(result);
+                    }
+
+
+                }
+//                else {
+//                    probability.add(1);
+//                }
+            }
+            probabilitiDictionary.put(i, probability);
+        }
+        Map<Integer, Double> averageDictionary = new HashMap<>();
+        for (Integer key : probabilitiDictionary.keySet()) {
+            List<Integer> valueList = probabilitiDictionary.get(key);
+            double sum = 0;
+            for (Integer value : valueList) {
+                sum += value;
+            }
+            double average = sum / (valueList.size()* 200);
+            averageDictionary.put(key, average);
+        }
+
+
+        solutionToCsv("sredniewierzcholki.csv",  averageDictionary);
     }
 
     public static int countCommonEdges(List<Integer> firstCycleInFirst, List<Integer> firstCycleInSecond, List<Integer>secondCycleInSecond) {
