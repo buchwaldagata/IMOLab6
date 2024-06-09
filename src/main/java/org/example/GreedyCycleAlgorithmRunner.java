@@ -8,6 +8,8 @@ import java.util.*;
 
 public class GreedyCycleAlgorithmRunner {
     public static void run() throws IOException {
+        Instance kroA200 = new Instance("src/main/resources/kroA200.tsp");
+//        Instance kroB200 = new Instance("src/main/resources/kroB200.tsp");
         CoordinateList coordinateList = new CoordinateList("src/main/resources/kroA200.tsp");
         int[][] intCoordinateList = coordinateList.intCoordinateList;
         DistanceMatrix distanceMatrix = new DistanceMatrix(intCoordinateList);
@@ -26,6 +28,7 @@ public class GreedyCycleAlgorithmRunner {
             List<List<Integer>> listOfListOfCycle = greedyCycleAlgorithm.runAlgorithm(randomNumber, intCoordinateList, distanceMatrix2);
 //            List<Integer> firstCycle = listOfListOfCycle.get(0);
 //            List<Integer> secondCycle = listOfListOfCycle.get(1);
+            new CandidatesMoves(kroA200, listOfListOfCycle);
             fullList.add(listOfListOfCycle);
         }
         Map<Integer, List<Integer>> probabilitiDictionary = new HashMap<>();
@@ -65,7 +68,7 @@ public class GreedyCycleAlgorithmRunner {
             for (Integer value : valueList) {
                 sum += value;
             }
-            double average = sum / valueList.size();
+            double average = sum / (valueList.size()* 200);
             averageDictionary.put(key, average);
         }
 
@@ -73,6 +76,27 @@ public class GreedyCycleAlgorithmRunner {
         solutionToCsv("sredniewierzcholki.csv",  averageDictionary);
         System.out.println("JEJ");
 
+//
+//
+//        int  liczbaWspolnychKrawedzi = 0;
+//        for (int i = 0 ; i < fullList.size(); i++){
+//            for (int j = 0 ; j < fullList.size(); j++){
+//                if (i != j){
+//                    List<Integer> firstCycleInFirst = fullList.get(i).get(0);
+//                    List<Integer> secondCycleInFirst = fullList.get(i).get(1);
+//                    List<Integer> firstCycleInSecond = fullList.get(j).get(0);
+//                    List<Integer> secondCycleInSecond = fullList.get(j).get(1);
+//                    System.out.println("HEJ");
+//
+//                    int commonEdgesCount = countCommonEdges(firstCycleInFirst, firstCycleInSecond, secondCycleInSecond);
+//                    liczbaWspolnychKrawedzi  += commonEdgesCount;
+//                }
+//            }
+//
+//        }
+//        System.out.println("Liczba wspolnych krawedzi wynosi" + liczbaWspolnychKrawedzi);
+//
+//
 
 
 
@@ -97,16 +121,32 @@ public class GreedyCycleAlgorithmRunner {
 
 
 
-
-
-
-
-
-        
 
 
 
     }
+
+    public static int countCommonEdges(List<Integer> firstCycleInFirst, List<Integer> firstCycleInSecond, List<Integer>secondCycleInSecond) {
+        Set<String> edgesFirst = extractEdges(firstCycleInFirst);
+        Set<String> edgesSecond = extractEdges(firstCycleInSecond);
+        Set<String> edgesThird = extractEdges(secondCycleInSecond);
+
+        Set<String> commonEdges = new HashSet<>(edgesFirst);
+        commonEdges.retainAll(edgesSecond);
+        commonEdges.retainAll(edgesThird);
+
+        return commonEdges.size();
+    }
+    public static Set<String> extractEdges(List<Integer> cycle) {
+        Set<String> edges = new HashSet<>();
+        for (int i = 0; i < cycle.size() - 1; i++) {
+            edges.add(cycle.get(i) + "-" + cycle.get(i + 1));
+        }
+        return edges;
+    }
+
+
+
 
     static void saveToFile(BufferedWriter bufferedWriter, int firstVertex, int x, int y, String nameOfFile){
         try {
@@ -167,9 +207,9 @@ public class GreedyCycleAlgorithmRunner {
     public static void solutionToCsv(String path, Map<Integer, Double> averageDictionary) throws IOException {
         FileWriter fileWriter = new FileWriter(path);
         PrintWriter printWriter = new PrintWriter(fileWriter);
-        printWriter.print("x,   y\n");
+        printWriter.print("x;y\n");
         for (Map.Entry<Integer, Double> entry : averageDictionary.entrySet()) {
-            printWriter.printf("%d,   %.6f\n", entry.getKey(), entry.getValue());
+            printWriter.printf("%d;%f\n", entry.getKey(), entry.getValue());
         }
 //        for (Integer a : cycles.get(0)) {
 //            printWriter.printf("%s,%d,%d\n","a", probabilitiDictionary.get(a), instance.coordinates.get(a).getValue());

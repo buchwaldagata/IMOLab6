@@ -55,6 +55,9 @@ public class GreedyCycleAlgorithm {
         for (Map.Entry<Integer, Integer> entry : firstCycle.entrySet()){
             int index = entry.getKey();
             int value = entry.getValue();
+            if (firstCycleList.contains(value)){
+                continue;
+            }
             while (firstCycleList.size() <=index){
                 firstCycleList.add(null);
             }
@@ -65,8 +68,12 @@ public class GreedyCycleAlgorithm {
 
         List<Integer> secondCycleList = new ArrayList<>();
         for (Map.Entry<Integer, Integer> entry : secondCycle.entrySet()){
+
             int index = entry.getKey();
             int value = entry.getValue();
+            if (secondCycleList.contains(value)){
+                continue;
+            }
             while (secondCycleList.size() <=index){
                 secondCycleList.add(null);
             }
