@@ -38,7 +38,7 @@ public class GreedyCycleAlgorithmRunner {
 //        drugi//
         prawdopobieństwoLiczbyWspólnychWierzchołkówDoNajlepszegoRozwiązania(kro, fullList);
 
-
+        PrawdopobieństwoLiczbyWspólnychKrawedziDośredniegoRozwiązania(fullList);
 //
 //        int  liczbaWspolnychKrawedzi = 0;
 //        for (int i = 0 ; i < fullList.size(); i++){
@@ -144,6 +144,69 @@ public class GreedyCycleAlgorithmRunner {
 
 
         solutionToCsv("sredniewierzcholki.csv",  averageDictionary);
+    }
+
+
+    private static void PrawdopobieństwoLiczbyWspólnychKrawedziDośredniegoRozwiązania(List<List<List<Integer>>> fullList) throws IOException {
+        Map<Integer, List<Integer>> probabilitiDictionary = new HashMap<>();
+        List<Integer> probability;
+
+        for (int i = 0; i < fullList.size(); i++){
+            probability= new ArrayList<>();
+            for (int j = 0; j < fullList.size(); j++){
+                if (i != j){
+                    List<Integer> firstCycleInFirst = fullList.get(i).get(0);
+                    List<Integer> secondCycleInFirst = fullList.get(i).get(1);
+                    List<Integer> firstCycleInSecond = fullList.get(j).get(0);
+                    List<Integer> secondCycleInSecond = fullList.get(j).get(1);
+
+                    int cycleSize = firstCycleInFirst.size();
+                    int ilosc_wspolnych = 0;
+                    for(int k=0; k<cycleSize; k++) {
+                        for(int m=0; m<cycleSize; m++) {
+                            if(firstCycleInFirst.get(k) == firstCycleInSecond.get(m)) {
+                                ilosc_wspolnych += zero_lub_jeden(firstCycleInFirst, firstCycleInSecond, k, m, cycleSize);
+                            } else if(firstCycleInFirst.get(k) == secondCycleInSecond.get(m)) {
+                                ilosc_wspolnych += zero_lub_jeden(firstCycleInFirst, secondCycleInSecond, k, m, cycleSize);
+                            } else if(secondCycleInFirst.get(k) == firstCycleInSecond.get(m)) {
+                                ilosc_wspolnych += zero_lub_jeden(secondCycleInFirst, firstCycleInSecond, k, m, cycleSize);
+                            } else if(secondCycleInFirst.get(k) == secondCycleInSecond.get(m)) {
+                                ilosc_wspolnych += zero_lub_jeden(secondCycleInFirst, secondCycleInSecond, k, m, cycleSize);
+                            }
+                        }
+                    }
+                    probability.add(ilosc_wspolnych);
+                }
+            }
+            probabilitiDictionary.put(i, probability);
+        }
+        Map<Integer, Double> averageDictionary = new HashMap<>();
+        for (Integer key : probabilitiDictionary.keySet()) {
+            List<Integer> valueList = probabilitiDictionary.get(key);
+            double sum = 0;
+            for (Integer value : valueList) {
+                sum += value;
+            }
+            double average = sum / (valueList.size()* 200);
+            averageDictionary.put(key, average);
+        }
+
+
+        solutionToCsv("PrawdopobieństwoLiczbyWspólnychKrawedziDośredniegoRozwiązania.csv",  averageDictionary);
+    }
+
+    private static int zero_lub_jeden(List<Integer> cycle1, List<Integer> cycle2, int i1, int i2, int cycleSize) {
+        if(i1==cycleSize-1){
+            i1 = 0;
+        }
+        if(i2==cycleSize-1){
+            i2=0;
+        }
+        if(cycle1.get(i1+1) == cycle2.get(i2+1)) {
+            return 1;
+        } else {
+            return 0;
+        }
     }
 
     public static int countCommonEdges(List<Integer> firstCycleInFirst, List<Integer> firstCycleInSecond, List<Integer>secondCycleInSecond) {
