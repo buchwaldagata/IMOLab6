@@ -3,10 +3,11 @@ package org.example;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.Map;
+import java.io.PrintWriter;
+import java.util.*;
 
 public class GreedyCycleAlgorithmRunner {
-    public static void run() {
+    public static void run() throws IOException {
         CoordinateList coordinateList = new CoordinateList("src/main/resources/kroA200.tsp");
         int[][] intCoordinateList = coordinateList.intCoordinateList;
         DistanceMatrix distanceMatrix = new DistanceMatrix(intCoordinateList);
@@ -18,27 +19,90 @@ public class GreedyCycleAlgorithmRunner {
         Long minGreedyCycle = 1000000L;
         int minIndexGreedyCycle = -1;
         int totalLengthGreedyCycle = 0;
+        List<List<List<Integer>>> fullList =  new ArrayList<>();
         for (int i = 0 ; i < 1000; i++) {
-            Long lenGreedyCycle = greedyCycleAlgorithm.runAlgorithm(i*2, intCoordinateList,distanceMatrix2);
-            if(lenGreedyCycle > maxGreedyCycle){
-                maxGreedyCycle = lenGreedyCycle;
-            }
-            if (lenGreedyCycle < minGreedyCycle){
-                minGreedyCycle = lenGreedyCycle;
-                minIndexGreedyCycle = i*2;
-            }
-            totalLengthGreedyCycle+= lenGreedyCycle;
+            Random random = new Random();
+            int randomNumber = random.nextInt(200);
+            List<List<Integer>> listOfListOfCycle = greedyCycleAlgorithm.runAlgorithm(randomNumber, intCoordinateList, distanceMatrix2);
+//            List<Integer> firstCycle = listOfListOfCycle.get(0);
+//            List<Integer> secondCycle = listOfListOfCycle.get(1);
+            fullList.add(listOfListOfCycle);
         }
-        long endTime   = System.nanoTime();
-        long totalTime = (endTime - startTime)/1000000;
-        System.out.println("Time: " + totalTime);
+        Map<Integer, List<Integer>> probabilitiDictionary = new HashMap<>();
+        List<Integer> probabilityList = new ArrayList<>(100);
+        System.out.println("JEJ");
+        List<Integer> probability;
 
-        int avgGreedyCycle = totalLengthGreedyCycle/100;
+        for (int i = 0 ; i < fullList.size(); i++){
+            probability= new ArrayList<>();
+            for (int j = 0 ; j < fullList.size(); j++){
+                if (i != j){
+                    List<Integer> firstCycleInFirst = fullList.get(i).get(0);
+                    List<Integer> secondCycleInFirst = fullList.get(i).get(1);
+                    List<Integer> firstCycleInSecond = fullList.get(j).get(0);
+                    List<Integer> secondCycleInSecond = fullList.get(j).get(1);
 
-        System.out.println("\nGreedy Cycle");
-        System.out.println("Maximum " + maxGreedyCycle);
-        System.out.println("Minimum " + minGreedyCycle + " for " + minIndexGreedyCycle);
-        System.out.println("Average " + avgGreedyCycle);
+                    if (numberOfCommonELements(firstCycleInFirst, firstCycleInSecond) > numberOfCommonELements(firstCycleInFirst, secondCycleInSecond)){
+                        int result = numberOfCommonELements(firstCycleInFirst, firstCycleInSecond) + numberOfCommonELements(secondCycleInFirst, secondCycleInSecond);
+                        probability.add(result);
+                    } else{
+                        int result = numberOfCommonELements(firstCycleInFirst, secondCycleInSecond) + numberOfCommonELements(secondCycleInFirst, firstCycleInSecond);
+                        probability.add(result);
+                    }
+
+
+                }
+//                else {
+//                    probability.add(1);
+//                }
+            }
+            probabilitiDictionary.put(i, probability);
+        }
+        Map<Integer, Double> averageDictionary = new HashMap<>();
+        for (Integer key : probabilitiDictionary.keySet()) {
+            List<Integer> valueList = probabilitiDictionary.get(key);
+            double sum = 0;
+            for (Integer value : valueList) {
+                sum += value;
+            }
+            double average = sum / valueList.size();
+            averageDictionary.put(key, average);
+        }
+
+
+        solutionToCsv("sredniewierzcholki.csv",  averageDictionary);
+        System.out.println("JEJ");
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
 
 
 
@@ -88,5 +152,31 @@ public class GreedyCycleAlgorithmRunner {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public static int numberOfCommonELements(List<Integer> lista1, List<Integer> lista2) {
+        int count = 0;
+        for (Integer element : lista1) {
+            if (lista2.contains(element)) {
+                count++;
+            }
+        }
+        return count;
+    }
+
+    public static void solutionToCsv(String path, Map<Integer, Double> averageDictionary) throws IOException {
+        FileWriter fileWriter = new FileWriter(path);
+        PrintWriter printWriter = new PrintWriter(fileWriter);
+        printWriter.print("x,   y\n");
+        for (Map.Entry<Integer, Double> entry : averageDictionary.entrySet()) {
+            printWriter.printf("%d,   %.6f\n", entry.getKey(), entry.getValue());
+        }
+//        for (Integer a : cycles.get(0)) {
+//            printWriter.printf("%s,%d,%d\n","a", probabilitiDictionary.get(a), instance.coordinates.get(a).getValue());
+//        }
+//        for (Integer a : cycles.get(1)) {
+//            printWriter.printf("%s,%d,%d\n","b", instance.coordinates.get(a).getKey(), instance.coordinates.get(a).getValue());
+//        }
+        printWriter.close();
     }
 }

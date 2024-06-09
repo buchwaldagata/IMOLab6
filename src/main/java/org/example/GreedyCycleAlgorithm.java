@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 public class GreedyCycleAlgorithm {
-    public Long runAlgorithm(int firstVertex, int[][] coordinateList, Long[][] distanceMatrix) {
+    public List<List<Integer>> runAlgorithm(int firstVertex, int[][] coordinateList, Long[][] distanceMatrix) {
         List<Integer> unassignedVertices = new ArrayList<>();
         for(int i = 0; i < distanceMatrix.length; i++) {
             unassignedVertices.add(i);
@@ -50,10 +50,43 @@ public class GreedyCycleAlgorithm {
             findAndAddBestVertex(unassignedVertices, distanceMatrix, secondCycle);
         }
 
+
+        List<Integer> firstCycleList = new ArrayList<>();
+        for (Map.Entry<Integer, Integer> entry : firstCycle.entrySet()){
+            int index = entry.getKey();
+            int value = entry.getValue();
+            while (firstCycleList.size() <=index){
+                firstCycleList.add(null);
+            }
+            firstCycleList.set(index,value);
+        }
+
+//        System.out.println(firstCycleList);
+
+        List<Integer> secondCycleList = new ArrayList<>();
+        for (Map.Entry<Integer, Integer> entry : secondCycle.entrySet()){
+            int index = entry.getKey();
+            int value = entry.getValue();
+            while (secondCycleList.size() <=index){
+                secondCycleList.add(null);
+            }
+            secondCycleList.set(index,value);
+        }
+
+
+
+//        System.out.println(secondCycleList);
+
+        List<List<Integer>> listOfListOfIntegers = new ArrayList<>();
+        listOfListOfIntegers.add(firstCycleList);
+        listOfListOfIntegers.add(secondCycleList);
+
+
         // save cycles to files
         GreedyCycleAlgorithmRunner.saveCycle(coordinateList, firstCycle, "Greedy Cycle first " + firstVertex);
         GreedyCycleAlgorithmRunner.saveCycle(coordinateList, secondCycle, "Greedy Cycle second " + firstVertex);
-        return GreedyCycleAlgorithmRunner.getLengthFromCycle(firstCycle, distanceMatrix) + GreedyCycleAlgorithmRunner.getLengthFromCycle(secondCycle,distanceMatrix);
+        return listOfListOfIntegers;
+//        return GreedyCycleAlgorithmRunner.getLengthFromCycle(firstCycle, distanceMatrix) + GreedyCycleAlgorithmRunner.getLengthFromCycle(secondCycle,distanceMatrix);
     }
 
     private static void addVertexToCycle(List<Integer> unassignedVertices, Map<Integer, Integer> cycle,
