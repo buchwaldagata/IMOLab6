@@ -12,6 +12,7 @@ public class GreedyCycleAlgorithmRunner {
         Instance kroA200 = new Instance("src/main/resources/kroA200.tsp");
         Instance kroB200 = new Instance("src/main/resources/kroB200.tsp");
         Instance kro = kroA200;
+//        CoordinateList coordinateList = new CoordinateList("src/main/resources/kroA200.tsp");
         CoordinateList coordinateList = new CoordinateList("src/main/resources/kroA200.tsp");
         int[][] intCoordinateList = coordinateList.intCoordinateList;
         DistanceMatrix distanceMatrix = new DistanceMatrix(intCoordinateList);
@@ -23,6 +24,7 @@ public class GreedyCycleAlgorithmRunner {
         Long minGreedyCycle = 1000000L;
         int minIndexGreedyCycle = -1;
         int totalLengthGreedyCycle = 0;
+        List<Double> wartosciFunkcjiCelu = new ArrayList<>();
         List<List<List<Integer>>> fullList =  new ArrayList<>();
         for (int i = 0 ; i < 1000; i++) {
             Random random = new Random();
@@ -30,23 +32,26 @@ public class GreedyCycleAlgorithmRunner {
             List<List<Integer>> listOfListOfCycle = greedyCycleAlgorithm.runAlgorithm(randomNumber, intCoordinateList, distanceMatrix2);
 //            List<Integer> firstCycle = listOfListOfCycle.get(0);
 //            List<Integer> secondCycle = listOfListOfCycle.get(1);
-            new CandidatesMoves(kro, listOfListOfCycle);
+            CandidatesMoves candidate = new CandidatesMoves(kro, listOfListOfCycle);
             fullList.add(listOfListOfCycle);
+            wartosciFunkcjiCelu.add(candidate.getSolutionValue());
         }
+        HAE hae = new HAE(kroA200);
+        hae.solutionToCsv("hae.csv", kro);
         System.out.println("Pierwszy nizej - PrawdopobieństwoLiczbyWspólnychWierzchołkówDośredniegoRozwiązania");
-        PrawdopobieństwoLiczbyWspólnychWierzchołkówDośredniegoRozwiązania(fullList);
+        PrawdopobieństwoLiczbyWspólnychWierzchołkówDośredniegoRozwiązania(fullList, wartosciFunkcjiCelu);
         System.out.println("Drugi nizej - prawdopobieństwoLiczbyWspólnychWierzchołkówDoNajlepszegoRozwiązania");
-        prawdopobieństwoLiczbyWspólnychWierzchołkówDoNajlepszegoRozwiązania(kro, fullList);
+        prawdopobieństwoLiczbyWspólnychWierzchołkówDoNajlepszegoRozwiązania(kro, fullList, wartosciFunkcjiCelu, hae);
         System.out.println("Trzeci nizej - PrawdopobieństwoLiczbyWspólnychKrawedziDośredniegoRozwiązania");
-        PrawdopobieństwoLiczbyWspólnychKrawedziDośredniegoRozwiązania( fullList);
+        PrawdopobieństwoLiczbyWspólnychKrawedziDośredniegoRozwiązania( fullList, wartosciFunkcjiCelu);
         System.out.println("Czwarty nizej - PrawdopobieństwoLiczbyWspólnychKrawedziDoNajlepszegoRozwiązania ");
-        PrawdopobieństwoLiczbyWspólnychKrawedziDoNajlepszegoRozwiązania(kro, fullList);
+        PrawdopobieństwoLiczbyWspólnychKrawedziDoNajlepszegoRozwiązania(kro, fullList, wartosciFunkcjiCelu, hae);
 
 
     }
 
-    private static void PrawdopobieństwoLiczbyWspólnychKrawedziDoNajlepszegoRozwiązania(Instance kroA200, List<List<List<Integer>>> fullList) throws IOException {
-        HAE hae = new HAE(kroA200);
+    private static void PrawdopobieństwoLiczbyWspólnychKrawedziDoNajlepszegoRozwiązania(Instance kroA200, List<List<List<Integer>>> fullList, List<Double> wartosciFunkcjiCelu, HAE hae) throws IOException {
+
         List<Integer> firstBestCycle = hae.cycles_X.get(0);
         List<Integer> secondBestCycle = hae.cycles_X.get(1);
 
@@ -92,11 +97,10 @@ public class GreedyCycleAlgorithmRunner {
         }
 
 
-        solutionToCsv("PrawdopobieństwoLiczbyWspólnychKrawedziDoNajlepszegoRozwiązania.csv",  averageDictionary);
+        solutionToCsv("PrawdopobieństwoLiczbyWspólnychKrawedziDoNajlepszegoRozwiązania.csv",  averageDictionary, wartosciFunkcjiCelu);
     }
 
-    private static void prawdopobieństwoLiczbyWspólnychWierzchołkówDoNajlepszegoRozwiązania(Instance kroA200, List<List<List<Integer>>> fullList) throws IOException {
-        HAE hae = new HAE(kroA200);
+    private static void prawdopobieństwoLiczbyWspólnychWierzchołkówDoNajlepszegoRozwiązania(Instance kroA200, List<List<List<Integer>>> fullList,List<Double> wartosciFunkcjiCelu, HAE hae) throws IOException {
         List<Integer> firstBestCycle = hae.cycles_X.get(0);
         List<Integer> secondBestCycle = hae.cycles_X.get(1);
 //
@@ -130,10 +134,10 @@ public class GreedyCycleAlgorithmRunner {
         }
 
 
-        solutionToCsv("Prawdopobieństwo liczby wspólnych wierzchołków do najlepszego rozwiązania.csv",  averageDictionary);
+        solutionToCsv("Prawdopobieństwo liczby wspólnych wierzchołków do najlepszego rozwiązania.csv",  averageDictionary, wartosciFunkcjiCelu);
     }
 
-    private static void PrawdopobieństwoLiczbyWspólnychWierzchołkówDośredniegoRozwiązania(List<List<List<Integer>>> fullList) throws IOException {
+    private static void PrawdopobieństwoLiczbyWspólnychWierzchołkówDośredniegoRozwiązania(List<List<List<Integer>>> fullList, List<Double> wartosciFunkcjiCelu) throws IOException {
         Map<Integer, List<Integer>> probabilitiDictionary = new HashMap<>();
         List<Integer> probabilityList = new ArrayList<>(100);
 //        System.out.println("JEJ");
@@ -176,11 +180,11 @@ public class GreedyCycleAlgorithmRunner {
         }
 
 
-        solutionToCsv("PrawdopobieństwoLiczbyWspólnychWierzchołkówDośredniegoRozwiązania.csv",  averageDictionary);
+        solutionToCsv("PrawdopobieństwoLiczbyWspólnychWierzchołkówDośredniegoRozwiązania.csv",  averageDictionary,wartosciFunkcjiCelu);
     }
 
 
-    private static void PrawdopobieństwoLiczbyWspólnychKrawedziDośredniegoRozwiązania(List<List<List<Integer>>> fullList) throws IOException {
+    private static void PrawdopobieństwoLiczbyWspólnychKrawedziDośredniegoRozwiązania(List<List<List<Integer>>> fullList, List<Double> wartosciFunkcjiCelu) throws IOException {
         Map<Integer, List<Integer>> probabilitiDictionary = new HashMap<>();
         List<Integer> probability;
 
@@ -225,7 +229,7 @@ public class GreedyCycleAlgorithmRunner {
         }
 
 
-        solutionToCsv("PrawdopobieństwoLiczbyWspólnychKrawedziDośredniegoRozwiązania.csv",  averageDictionary);
+        solutionToCsv("PrawdopobieństwoLiczbyWspólnychKrawedziDośredniegoRozwiązania.csv",  averageDictionary, wartosciFunkcjiCelu);
     }
 
     private static int zero_lub_jeden(List<Integer> cycle1, List<Integer> cycle2, int i1, int i2, int cycleSize) {
@@ -320,12 +324,12 @@ public class GreedyCycleAlgorithmRunner {
         return count;
     }
 
-    public static void solutionToCsv(String path, Map<Integer, Double> averageDictionary) throws IOException {
+    public static void solutionToCsv(String path, Map<Integer, Double> averageDictionary, List<Double> wartosciFunkcjiCelu ) throws IOException {
         FileWriter fileWriter = new FileWriter(path);
         PrintWriter printWriter = new PrintWriter(fileWriter);
         printWriter.print("x;y\n");
         for (Map.Entry<Integer, Double> entry : averageDictionary.entrySet()) {
-            printWriter.printf("%d;%f\n", entry.getKey(), entry.getValue());
+            printWriter.printf("%f;%f\n", wartosciFunkcjiCelu.get(entry.getKey()), entry.getValue());
         }
 //        for (Integer a : cycles.get(0)) {
 //            printWriter.printf("%s,%d,%d\n","a", probabilitiDictionary.get(a), instance.coordinates.get(a).getValue());

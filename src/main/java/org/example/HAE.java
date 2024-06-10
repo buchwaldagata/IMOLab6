@@ -33,7 +33,7 @@ class HAE {
         }
 
         int iterations = 0;
-        while (System.currentTimeMillis() - startTime < 20000) {
+        while (System.currentTimeMillis() - startTime < 30000) {
             try {
 
                 //wylosowanie rodziców
