@@ -11,7 +11,7 @@ public class GreedyCycleAlgorithmRunner {
 
         Instance kroA200 = new Instance("src/main/resources/kroA200.tsp");
         Instance kroB200 = new Instance("src/main/resources/kroB200.tsp");
-        Instance kro = kroA200;
+        Instance kro = kroB200;
 //        CoordinateList coordinateList = new CoordinateList("src/main/resources/kroA200.tsp");
         CoordinateList coordinateList = new CoordinateList("src/main/resources/kroA200.tsp");
         int[][] intCoordinateList = coordinateList.intCoordinateList;
@@ -36,7 +36,7 @@ public class GreedyCycleAlgorithmRunner {
             fullList.add(listOfListOfCycle);
             wartosciFunkcjiCelu.add(candidate.getSolutionValue());
         }
-        HAE hae = new HAE(kroA200);
+        HAE hae = new HAE(kroB200);
         hae.solutionToCsv("hae.csv", kro);
         System.out.println("Pierwszy nizej - PrawdopobieństwoLiczbyWspólnychWierzchołkówDośredniegoRozwiązania");
         PrawdopobieństwoLiczbyWspólnychWierzchołkówDośredniegoRozwiązania(fullList, wartosciFunkcjiCelu);
@@ -139,7 +139,7 @@ public class GreedyCycleAlgorithmRunner {
 
     private static void PrawdopobieństwoLiczbyWspólnychWierzchołkówDośredniegoRozwiązania(List<List<List<Integer>>> fullList, List<Double> wartosciFunkcjiCelu) throws IOException {
         Map<Integer, List<Integer>> probabilitiDictionary = new HashMap<>();
-        List<Integer> probabilityList = new ArrayList<>(100);
+//        List<Integer> probabilityList = new ArrayList<>(100);
 //        System.out.println("JEJ");
         List<Integer> probability;
 
