@@ -33,33 +33,66 @@ public class GreedyCycleAlgorithmRunner {
             new CandidatesMoves(kro, listOfListOfCycle);
             fullList.add(listOfListOfCycle);
         }
+        System.out.println("Pierwszy nizej - PrawdopobieństwoLiczbyWspólnychWierzchołkówDośredniegoRozwiązania");
         PrawdopobieństwoLiczbyWspólnychWierzchołkówDośredniegoRozwiązania(fullList);
-
-//        drugi//
+        System.out.println("Drugi nizej - prawdopobieństwoLiczbyWspólnychWierzchołkówDoNajlepszegoRozwiązania");
         prawdopobieństwoLiczbyWspólnychWierzchołkówDoNajlepszegoRozwiązania(kro, fullList);
-
-        PrawdopobieństwoLiczbyWspólnychKrawedziDośredniegoRozwiązania(fullList);
-//
-//        int  liczbaWspolnychKrawedzi = 0;
-//        for (int i = 0 ; i < fullList.size(); i++){
-//            for (int j = 0 ; j < fullList.size(); j++){
-//                if (i != j){
-//                    List<Integer> firstCycleInFirst = fullList.get(i).get(0);
-//                    List<Integer> secondCycleInFirst = fullList.get(i).get(1);
-//                    List<Integer> firstCycleInSecond = fullList.get(j).get(0);
-//                    List<Integer> secondCycleInSecond = fullList.get(j).get(1);
-//                    System.out.println("HEJ");
-//
-//                    int commonEdgesCount = countCommonEdges(firstCycleInFirst, firstCycleInSecond, secondCycleInSecond);
-//                    liczbaWspolnychKrawedzi  += commonEdgesCount;
-//                }
-//            }
-//
-//        }
-//        System.out.println("Liczba wspolnych krawedzi wynosi" + liczbaWspolnychKrawedzi);
+        System.out.println("Trzeci nizej - PrawdopobieństwoLiczbyWspólnychKrawedziDośredniegoRozwiązania");
+        PrawdopobieństwoLiczbyWspólnychKrawedziDośredniegoRozwiązania( fullList);
+        System.out.println("Czwarty nizej - PrawdopobieństwoLiczbyWspólnychKrawedziDoNajlepszegoRozwiązania ");
+        PrawdopobieństwoLiczbyWspólnychKrawedziDoNajlepszegoRozwiązania(kro, fullList);
 
 
+    }
 
+    private static void PrawdopobieństwoLiczbyWspólnychKrawedziDoNajlepszegoRozwiązania(Instance kroA200, List<List<List<Integer>>> fullList) throws IOException {
+        HAE hae = new HAE(kroA200);
+        List<Integer> firstBestCycle = hae.cycles_X.get(0);
+        List<Integer> secondBestCycle = hae.cycles_X.get(1);
+
+
+        Map<Integer, List<Integer>> probabilitiDictionary = new HashMap<>();
+        List<Integer> probability;
+
+        for (int i = 0; i < fullList.size(); i++){
+            probability= new ArrayList<>();
+                    List<Integer> firstCycleInFirst = fullList.get(i).get(0);
+                    List<Integer> secondCycleInFirst = fullList.get(i).get(1);
+                    List<Integer> firstCycleInSecond = firstBestCycle;
+                    List<Integer> secondCycleInSecond = secondBestCycle;
+
+                    int cycleSize = firstCycleInFirst.size();
+                    int ilosc_wspolnych = 0;
+                    for(int k=0; k<cycleSize; k++) {
+                        for(int m=0; m<cycleSize; m++) {
+                            if(firstCycleInFirst.get(k) == firstCycleInSecond.get(m)) {
+                                ilosc_wspolnych += zero_lub_jeden(firstCycleInFirst, firstCycleInSecond, k, m, cycleSize);
+                            } else if(firstCycleInFirst.get(k) == secondCycleInSecond.get(m)) {
+                                ilosc_wspolnych += zero_lub_jeden(firstCycleInFirst, secondCycleInSecond, k, m, cycleSize);
+                            } else if(secondCycleInFirst.get(k) == firstCycleInSecond.get(m)) {
+                                ilosc_wspolnych += zero_lub_jeden(secondCycleInFirst, firstCycleInSecond, k, m, cycleSize);
+                            } else if(secondCycleInFirst.get(k) == secondCycleInSecond.get(m)) {
+                                ilosc_wspolnych += zero_lub_jeden(secondCycleInFirst, secondCycleInSecond, k, m, cycleSize);
+                            }
+                        }
+                    }
+                    probability.add(ilosc_wspolnych);
+
+            probabilitiDictionary.put(i, probability);
+        }
+        Map<Integer, Double> averageDictionary = new HashMap<>();
+        for (Integer key : probabilitiDictionary.keySet()) {
+            List<Integer> valueList = probabilitiDictionary.get(key);
+            double sum = 0;
+            for (Integer value : valueList) {
+                sum += value;
+            }
+            double average = sum / (valueList.size()* 200);
+            averageDictionary.put(key, average);
+        }
+
+
+        solutionToCsv("PrawdopobieństwoLiczbyWspólnychKrawedziDoNajlepszegoRozwiązania.csv",  averageDictionary);
     }
 
     private static void prawdopobieństwoLiczbyWspólnychWierzchołkówDoNajlepszegoRozwiązania(Instance kroA200, List<List<List<Integer>>> fullList) throws IOException {
@@ -143,7 +176,7 @@ public class GreedyCycleAlgorithmRunner {
         }
 
 
-        solutionToCsv("sredniewierzcholki.csv",  averageDictionary);
+        solutionToCsv("PrawdopobieństwoLiczbyWspólnychWierzchołkówDośredniegoRozwiązania.csv",  averageDictionary);
     }
 
 
